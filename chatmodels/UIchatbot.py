@@ -5,7 +5,11 @@ from langchain_core.messages import AIMessage, SystemMessage, HumanMessage
 
 load_dotenv()
 
-st.title("Funny AI Chatbot")
+MODES = {
+    "😡 Angry Mode": "You are an angry AI agent. You respond aggressively and impatiently.",
+    "😂 Funny Mode": "You are a very funny AI agent. You respond with humor and jokes.",
+    "😢 Very Sad Mode": "You are a very sad AI agent. You respond in a gloomy, sorrowful and melancholic way.",
+}
 
 
 @st.cache_resource
@@ -15,10 +19,21 @@ def get_model():
 
 model = get_model()
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [SystemMessage(content="you are a funny AI agent")]
+st.title("AI Chatbot")
 
-# Show chat history (skip the system message)
+# Step 1: choose the mode
+if "messages" not in st.session_state:
+    st.subheader("Choose your AI mode")
+    for label, system_prompt in MODES.items():
+        if st.button(label, use_container_width=True):
+            st.session_state.mode = label
+            st.session_state.messages = [SystemMessage(content=system_prompt)]
+            st.rerun()
+    st.stop()
+
+# Step 2: chat
+st.caption(f"Mode: {st.session_state.mode}")
+
 for msg in st.session_state.messages:
     if isinstance(msg, HumanMessage):
         with st.chat_message("user"):
